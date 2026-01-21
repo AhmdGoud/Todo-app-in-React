@@ -13,6 +13,8 @@ import { Notyet } from "./NotYet";
 export default function TodoList() {
   const [inputValue, setInputValue] = useState("");
   const [notes, setNotes] = useState([]);
+  const [notesDone, setNotesDone] = useState([]);
+  // const [notesNotYet, setNotesNotYet] = useState([]);
 
   let notesList;
   if (notes.length !== 0) {
@@ -21,13 +23,13 @@ export default function TodoList() {
         <div className="thenote" key={note.id}>
           <p>{note.val}</p>
           <ul>
-            <li>
+            <li onClick={() => deleteNote(note.id)}>
               <DeleteIcon />
             </li>
             <li>
               <EditIcon />
             </li>
-            <li>
+            <li onClick={() => moveNote(note.id)}>
               <DoneIcon />
             </li>
           </ul>
@@ -39,6 +41,15 @@ export default function TodoList() {
   function addNewNote() {
     setNotes([...notes, { id: Date.now(), val: inputValue }]);
     setInputValue("");
+  }
+
+  function deleteNote(ID) {
+    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== ID));
+  }
+
+  function moveNote(ID) {
+    const notesListForDone = notes.find((note) => note.id === ID);
+    setNotesDone([...notesDone, notesListForDone]);
   }
 
   return (
@@ -61,13 +72,14 @@ export default function TodoList() {
 
       <Routes>
         <Route path="/lists" element={<TheList />}>
-          <Route path="allnotes" element={<AllNotes />} />
-          <Route path="done" element={<Done />} />
-          <Route path="notyet" element={<Notyet />} />
+          <Route path="allnotes" element={<AllNotes theNotes={notesList} />} />
+          <Route
+            path="done"
+            element={<Done theNotes={notesDone} delNot={deleteNote} />}
+          />
+          <Route path="notyet" element={<Notyet theNotes={notesList} />} />
         </Route>
       </Routes>
-
-      <div>{notesList}</div>
 
       <div className="addFeature">
         <div className="addBtn" onClick={() => addNewNote()}>
@@ -81,3 +93,8 @@ export default function TodoList() {
     </div>
   );
 }
+
+// ! important Note
+// we should keep our data in states not variables cause every time react renders the component
+// it will assign the variable the first value for example "" empty one
+// but react keeps the states data in it's components
