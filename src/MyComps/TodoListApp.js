@@ -1,20 +1,20 @@
 import { Link, Route, Routes } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import DoneIcon from "@mui/icons-material/Done";
 
-import { TheList } from "./TheList";
 import { AllNotes } from "./AllNotes";
-import { Done } from "./Don";
+import { Done } from "./Done";
 import { Notyet } from "./NotYet";
 
 export default function TodoList() {
   const [inputValue, setInputValue] = useState("");
+
   const [notes, setNotes] = useState([]);
   const [notesDone, setNotesDone] = useState([]);
-  // const [notesNotYet, setNotesNotYet] = useState([]);
+  const [notesNotYet, setNotesNotYet] = useState([]);
 
   let notesList;
   if (notes.length !== 0) {
@@ -29,7 +29,7 @@ export default function TodoList() {
             <li>
               <EditIcon />
             </li>
-            <li onClick={() => moveNote(note.id)}>
+            <li onClick={() => moveNoteForDone(note.id)}>
               <DoneIcon />
             </li>
           </ul>
@@ -38,6 +38,10 @@ export default function TodoList() {
     });
   }
 
+  useEffect(() => {
+    setNotesNotYet(notes);
+  }, [notes]);
+
   function addNewNote() {
     setNotes([...notes, { id: Date.now(), val: inputValue }]);
     setInputValue("");
@@ -45,16 +49,26 @@ export default function TodoList() {
 
   function deleteNote(ID) {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== ID));
+    setNotesDone((prevNotes) => prevNotes.filter((note) => note.id !== ID));
   }
 
-  function moveNote(ID) {
+  function moveNoteForDone(ID) {
     const notesListForDone = notes.find((note) => note.id === ID);
     setNotesDone([...notesDone, notesListForDone]);
+
+    moveNoteForNotYet();
+  }
+
+  function moveNoteForNotYet() {
+    let returnedNotes = [];
+    setNotesNotYet(returnedNotes);
   }
 
   return (
     <div className="todolist">
-      <h1>TodoList</h1>
+      <Link to={"/posts"}>
+        <h1>TodoList</h1>
+      </Link>
 
       <ul className="navbar">
         <Link className="nav-link" to={"/lists/allnotes"}>
@@ -71,13 +85,16 @@ export default function TodoList() {
       </ul>
 
       <Routes>
-        <Route path="/lists" element={<TheList />}>
+        <Route path="/lists">
           <Route path="allnotes" element={<AllNotes theNotes={notesList} />} />
           <Route
             path="done"
             element={<Done theNotes={notesDone} delNot={deleteNote} />}
           />
-          <Route path="notyet" element={<Notyet theNotes={notesList} />} />
+          <Route
+            path="notyet"
+            element={<Notyet theNotes={notesNotYet} delNot={deleteNote} />}
+          />
         </Route>
       </Routes>
 
