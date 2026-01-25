@@ -39,8 +39,8 @@ export default function TodoList() {
   }
 
   useEffect(() => {
-    setNotesNotYet(notes);
-  }, [notes]);
+    moveNoteForNotYet();
+  }, [notes, notesDone]);
 
   function addNewNote() {
     setNotes([...notes, { id: Date.now(), val: inputValue }]);
@@ -55,12 +55,17 @@ export default function TodoList() {
   function moveNoteForDone(ID) {
     const notesListForDone = notes.find((note) => note.id === ID);
     setNotesDone([...notesDone, notesListForDone]);
-
-    moveNoteForNotYet();
   }
 
   function moveNoteForNotYet() {
-    let returnedNotes = [];
+    const returnedNotes = notes.filter((note) => {
+      // returns a new arr with ele that pass test
+      return !notesDone.some((noteDone) => {
+        // some returns true if at least one ele passed the tset
+        return noteDone.id === note.id;
+      });
+    });
+
     setNotesNotYet(returnedNotes);
   }
 
