@@ -1,7 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
-export function Done({ theNotes, delNot }) {
+export function Notyet({ theNotes, delNot }) {
   let notesList;
   if (theNotes.length !== 0) {
     notesList = theNotes.map((note) => {
@@ -25,7 +25,7 @@ export function Done({ theNotes, delNot }) {
 
   return (
     <div>
-      <p>Notes Done</p>
+      <p>Notes Not Finished Yet</p>
       {notesList}
     </div>
   );

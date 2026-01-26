@@ -8,14 +8,18 @@ import DoneIcon from "@mui/icons-material/Done";
 import { AllNotes } from "./AllNotes";
 import { Done } from "./Done";
 import { Notyet } from "./NotYet";
+import { Lists } from "./ListsRouter";
 
 export default function TodoList() {
   const [inputValue, setInputValue] = useState("");
 
   const [notes, setNotes] = useState([]);
+  const [notesNumber, setNotesNumber] = useState("");
+
   const [notesDone, setNotesDone] = useState([]);
   const [notesNotYet, setNotesNotYet] = useState([]);
 
+  // render notes
   let notesList;
   if (notes.length !== 0) {
     notesList = notes.map((note) => {
@@ -26,7 +30,7 @@ export default function TodoList() {
             <li onClick={() => deleteNote(note.id)}>
               <DeleteIcon />
             </li>
-            <li>
+            <li onClick={() => editNote(note.id)}>
               <EditIcon />
             </li>
             <li onClick={() => moveNoteForDone(note.id)}>
@@ -39,8 +43,20 @@ export default function TodoList() {
   }
 
   useEffect(() => {
-    moveNoteForNotYet();
+    const returnedNotes = notes.filter((note) => {
+      // returns a new arr with ele that pass test
+      return !notesDone.some((noteDone) => {
+        // some returns true if at least one ele passed the tset
+        return noteDone.id === note.id;
+      });
+    });
+
+    setNotesNotYet(returnedNotes);
   }, [notes, notesDone]);
+
+  useEffect(() => {
+    setNotesNumber(notes.length);
+  }, [notes]);
 
   function addNewNote() {
     setNotes([...notes, { id: Date.now(), val: inputValue }]);
@@ -57,21 +73,39 @@ export default function TodoList() {
     setNotesDone([...notesDone, notesListForDone]);
   }
 
-  function moveNoteForNotYet() {
-    const returnedNotes = notes.filter((note) => {
-      // returns a new arr with ele that pass test
-      return !notesDone.some((noteDone) => {
-        // some returns true if at least one ele passed the tset
-        return noteDone.id === note.id;
-      });
+  // edit and save feature
+  const [editDisplay, setEditDisplay] = useState("none");
+  const [editInputValue, setEditInputValue] = useState("");
+  const [idForEditednote, setIdForEditednote] = useState("");
+
+  const editInputDisplay = {
+    display: editDisplay,
+  };
+
+  function editNote(noteId) {
+    setEditDisplay("block");
+
+    const noteForEdit = notes.find((note) => {
+      return note.id === noteId;
     });
 
-    setNotesNotYet(returnedNotes);
+    setIdForEditednote(noteForEdit.id);
+    setEditInputValue(noteForEdit.val);
+  }
+
+  function saveEdited() {
+    const notesForMutation = [...notes];
+    const noteToSaveEdited = notesForMutation.find((note) => {
+      return note.id === idForEditednote;
+    });
+
+    noteToSaveEdited.val = editInputValue;
+    setNotes(notesForMutation);
   }
 
   return (
     <div className="todolist">
-      <Link to={"/posts"}>
+      <Link to={"/lists"}>
         <h1>TodoList</h1>
       </Link>
 
@@ -90,8 +124,11 @@ export default function TodoList() {
       </ul>
 
       <Routes>
-        <Route path="/lists">
-          <Route path="allnotes" element={<AllNotes theNotes={notesList} />} />
+        <Route path="/lists" element={<Lists />}>
+          <Route
+            path="allnotes"
+            element={<AllNotes theNotes={notesList} notesNum={notesNumber} />}
+          />
           <Route
             path="done"
             element={<Done theNotes={notesDone} delNot={deleteNote} />}
@@ -103,6 +140,7 @@ export default function TodoList() {
         </Route>
       </Routes>
 
+      {/* add feature  */}
       <div className="addFeature">
         <div className="addBtn" onClick={() => addNewNote()}>
           Add new one
@@ -110,7 +148,29 @@ export default function TodoList() {
         <input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              addNewNote();
+            }
+          }}
         />
+      </div>
+
+      {/* edit input  */}
+      <div className="theEditInput" style={editInputDisplay}>
+        <input
+          value={editInputValue}
+          onChange={(e) => setEditInputValue(e.target.value)}
+        />
+        <button
+          className="saveBtn"
+          onClick={() => {
+            setEditDisplay("none");
+            saveEdited();
+          }}
+        >
+          Save
+        </button>
       </div>
     </div>
   );

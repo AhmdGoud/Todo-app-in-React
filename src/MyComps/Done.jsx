@@ -1,7 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
 
-export function Notyet({ theNotes, delNot }) {
+export function Done({ theNotes, delNot }) {
   let notesList;
   if (theNotes.length !== 0) {
     notesList = theNotes.map((note) => {
@@ -13,10 +12,6 @@ export function Notyet({ theNotes, delNot }) {
             <li onClick={() => delNot(note.id)}>
               <DeleteIcon />
             </li>
-
-            <li>
-              <EditIcon />
-            </li>
           </ul>
         </div>
       );
@@ -25,7 +20,7 @@ export function Notyet({ theNotes, delNot }) {
 
   return (
     <div>
-      <p>Not Yet</p>
+      <p>Notes Done</p>
       {notesList}
     </div>
   );
